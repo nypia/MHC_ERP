@@ -79,6 +79,7 @@
 
   function Shell() {
     E.useStore();
+    const [drawer, setDrawer] = useState(false);
     const u = E.currentUser();
     const mods = visible();
     let r = store.route;
@@ -87,16 +88,22 @@
     if (!mod) return html`<div className="login"><div className="card pad col">Bu kullanıcıya rol atanmamış. Yöneticiden rol isteyin.<${E.Btn} onClick=${E.logout}>Çıkış<//></div></div>`;
     const Page = E.pages[r.mod + '/' + r.page];
     const Det = r.rec ? E.details[r.rec.type] : null;
+    const pageLabel = (pagesOf(mod).find((p) => p[0] === r.page) || [])[1] || '';
     return html`<div className="shell">
-      <nav className="side" aria-label="Modüller">
+      <nav className=${'side' + (drawer ? ' open' : '')} aria-label="Modüller">
         <div className="brand">ATÖLYE ERP<small>Tekliften sevkiyata</small></div>
-        ${mods.map((m) => html`<button type="button" key=${m.k} className=${'nav' + (m.k === r.mod ? ' on' : '')} onClick=${() => E.nav(m.k, pagesOf(m)[0][0])}>${E.ICONS[m.k]}${m.l}</button>`)}
-        <div className="who"><b>${u.name}</b>${(u.roles || []).map((x) => E.ROLES[x]).join(', ')}<br /><button type="button" onClick=${E.logout}>Kullanıcı değiştir</button></div>
+        ${mods.map((m) => html`<button type="button" key=${m.k} className=${'nav' + (m.k === r.mod ? ' on' : '')} onClick=${() => { setDrawer(false); E.nav(m.k, pagesOf(m)[0][0]); }}>${E.ICONS[m.k]}${m.l}</button>`)}
+        <div className="who"><b>${u.name}</b>${(u.roles || []).map((x) => E.ROLES[x]).join(', ')}<br /><button type="button" onClick=${() => { setDrawer(false); E.logout(); }}>Kullanıcı değiştir</button></div>
       </nav>
+      <div className=${'scrim' + (drawer ? ' open' : '')} onClick=${() => setDrawer(false)}></div>
       <div className="main">
+        <div className="mbar">
+          <button type="button" aria-label="Menüyü aç" aria-expanded=${drawer} onClick=${() => setDrawer(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+          <b>${mod.l}${pageLabel ? ' · ' + pageLabel : ''}</b>
+        </div>
         ${store.mode === 'local' ? html`<div className="banner">Bu görünümde kalıcı veri deposuna bağlanılamadı. Yaptığınız değişiklikler sayfa kapanınca kaybolur.</div>` : null}
         <header className="top">
-          ${pagesOf(mod).map(([k, l]) => html`<button type="button" key=${k} className=${'t' + (k === r.page && !r.rec ? ' on' : '')} onClick=${() => E.nav(mod.k, k)}>${l}</button>`)}
+          <div className="tabsrow">${pagesOf(mod).map(([k, l]) => html`<button type="button" key=${k} className=${'t' + (k === r.page && !r.rec ? ' on' : '')} onClick=${() => E.nav(mod.k, k)}>${l}</button>`)}</div>
           <${Search} />
         </header>
         <main className="page">

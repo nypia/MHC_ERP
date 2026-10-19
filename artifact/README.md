@@ -5,6 +5,7 @@ https://claude.ai/artifact/UNMyzLHTv9UCkV37nTXpBJ
 
 - Arayüz: React 18 + htm (derleme adımı yok), `index.html` ve `js/` altındaki modül dosyaları.
 - Veri: yapıtın paylaşılan veri deposu (`db` yeteneği). Belgeler (CoC, çizim, sertifika, ölçüm raporu) `assets` yeteneğinde versiyonlu saklanır.
+- Ekran: 1100 px üstü masaüstü, 700–1099 px tablet (aynı düzen, dar menü), 700 px altı telefon (menü soldan açılır çekmece). Dokunmatik ekranda düğme ve alanlar büyür.
 - Çıktılar (teklif, iş föyü, irsaliye, müşteri CoC, CSV listeler) `downloads` yeteneğiyle indirilir.
 
 | Dosya | İçerik |
@@ -22,4 +23,4 @@ https://claude.ai/artifact/UNMyzLHTv9UCkV37nTXpBJ
 | `js/app.js` | Giriş, menü, arama, yönlendirme |
 
 Sınırlar: veri claude.ai'de durur (spesifikasyondaki "iç ağ" şartı kalıcı Django sürümünde karşılanır);
-yapıt deposu en fazla 5.000 kayıt tutar; ERP içi kullanıcı seçimi gerçek kimlik doğrulaması değildir.
+yapıt deposu en fazla 25.000 kayıt tutar; ERP içi kullanıcı seçimi gerçek kimlik doğrulaması değildir.
