@@ -231,11 +231,33 @@
     ana: html`<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path></svg>`
   };
 
+  // A crash in one screen shows its message instead of blanking the whole app.
+  class ErrorBoundary extends React.Component {
+    constructor(p) { super(p); this.state = { err: null }; }
+    static getDerivedStateFromError(err) { return { err }; }
+    componentDidCatch(err, info) { try { console.error('Ekran hatası', err, info && info.componentStack); } catch (e) { /* ignore */ } }
+    render() {
+      const err = this.state.err;
+      if (!err) return this.props.children;
+      const reset = () => this.setState({ err: null });
+      return html`<div className="card pad col" role="alert" style=${{ margin: this.props.full ? 16 : 0 }}>
+        <b style=${{ fontSize: 16 }}>Bu ekran açılırken bir hata oluştu</b>
+        <div className="alert bad mono" style=${{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>${String((err && (err.stack || err.message)) || err).split('\n').slice(0, 4).join('\n')}</div>
+        <div className="row">
+          ${this.props.full ? html`<${Btn} kind="p" onClick=${() => window.location.reload()}>Sayfayı yenile<//>` : html`<${Btn} onClick=${reset}>Tekrar dene<//><${Btn} kind="p" onClick=${() => { reset(); E.nav('genel', 'panel'); }}>Gösterge paneline dön<//>`}
+        </div>
+        <div className="muted" style=${{ fontSize: 12.5, wordBreak: 'break-word' }}>Bu mesajın ekran görüntüsünü iletirseniz sorunu bulabilirim. Tarayıcı: ${navigator.userAgent}</div>
+      </div>`;
+    }
+  }
+  window.addEventListener('error', (e) => { if (e && e.message) E.toast('Hata: ' + e.message, 'err'); });
+  window.addEventListener('unhandledrejection', (e) => { const r = e && e.reason; E.toast('Hata: ' + ((r && (r.message || r.code)) || String(r)), 'err'); });
+
   // Modals opened from other modules (e.g. "Fasona gönder" from a work order): rendered by the app shell.
   function showModal(C, props) { store.modal = { C, props: props || {} }; E.emit(); }
   function hideModal() { store.modal = null; E.emit(); }
   function ModalHost() { const m = store.modal; return m ? html`<${m.C} ...${m.props} onClose=${hideModal} />` : null; }
 
-  Object.assign(E, { showModal, hideModal, ModalHost, Badge, tone, Btn, Link, RecLink, Field, Inp, Sel, Txt, Check, Multi, Chips, SchemaForm, missing, useForm,
+  Object.assign(E, { ErrorBoundary, showModal, hideModal, ModalHost, Badge, tone, Btn, Link, RecLink, Field, Inp, Sel, Txt, Check, Multi, Chips, SchemaForm, missing, useForm,
     Modal, Dialogs, Toasts, Table, Card, Empty, Tabs, KV, Head, BackCrumb, DocPanel, History, ListPage, CrudPage, CrudDetail, ICONS });
 })();

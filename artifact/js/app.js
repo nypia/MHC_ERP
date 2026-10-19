@@ -107,7 +107,9 @@
           <${Search} />
         </header>
         <main className="page">
-          ${Det ? html`<${Det} key=${r.rec.type + r.rec.id} id=${r.rec.id} />` : Page ? html`<${Page} key=${r.mod + r.page} />` : html`<${E.Empty} title="Sayfa bulunamadı" text="" />`}
+          <${E.ErrorBoundary} key=${r.mod + r.page + (r.rec ? r.rec.type + r.rec.id : '')}>
+            ${Det ? html`<${Det} key=${r.rec.type + r.rec.id} id=${r.rec.id} />` : Page ? html`<${Page} key=${r.mod + r.page} />` : html`<${E.Empty} title="Sayfa bulunamadı" text="" />`}
+          <//>
         </main>
       </div>
     </div>`;
@@ -121,10 +123,10 @@
     else if (!E.currentUser()) body = html`<${Login} />`;
     else if (operatorOnly(E.currentUser())) body = html`<${E.OperatorApp} onExit=${E.logout} />`;
     else body = html`<${Shell} />`;
-    return html`${body}<${E.ModalHost} /><${E.Dialogs} /><${E.Toasts} />`;
+    return html`<${E.ErrorBoundary} full>${body}<//><${E.ErrorBoundary} full><${E.ModalHost} /><//><${E.Dialogs} /><${E.Toasts} />`;
   }
 
   ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
   E.initStore();
-  setTimeout(() => { if (!E.allReady()) { E.COLS.forEach((c) => { store.ready[c] = true; }); E.emit(); } }, 12000);
+  setTimeout(() => { if (store.mode === 'loading') store.mode = 'local'; if (!E.allReady()) { E.COLS.forEach((c) => { store.ready[c] = true; }); } E.emit(); }, 12000);
 })();
